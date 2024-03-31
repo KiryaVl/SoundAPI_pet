@@ -96,6 +96,9 @@ public class ServerGUI extends JFrame {
 
                 // Запускаем обработчик клиента в отдельном потоке
                 new Thread(clientHandler).start();
+                if (!textSocket.isConnected()){
+                    log("Server disconnected");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

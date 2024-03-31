@@ -42,16 +42,17 @@ public class ClientGUI extends JFrame {
             // Отправляем имя на сервер при подключении
             sendMessage(name);
 
-
             // Начинаем слушать входящие сообщения
             Thread messagesThread = new Thread(this::listenForMessages);
             messagesThread.start();
 
-
-
             // Начинаем слушать входящие аудио
             Thread listeningThread = new Thread(this::startAudioListening);
             listeningThread.start();
+
+            // Начинаем отправлять аудио
+            Thread sendingThread = new Thread(this::sendAudio);
+            sendingThread.start();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,7 +147,6 @@ public class ClientGUI extends JFrame {
             while ((count = in.read(buffer)) != -1) {
                 System.out.println(this);
                 line.write(buffer, 0, count);
-                sendAudio(buffer);
             }
             line.drain();
             line.close();
@@ -159,8 +159,9 @@ public class ClientGUI extends JFrame {
     /**
      * Метод записи аудио
      */
-    private void sendAudio(byte[] buffer ) {
+    private void sendAudio() {
         try {
+            byte[] buffer = new byte[1024];
             AudioFormat format = new AudioFormat(44100, 16, 2, true, true);
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
             line = (TargetDataLine) AudioSystem.getLine(info);
