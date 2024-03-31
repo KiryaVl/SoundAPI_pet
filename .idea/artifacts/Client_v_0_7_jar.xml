@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Client_v.0.7:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Client_v_0_7_jar</output-path>
+    <root id="archive" name="DopDiplom.jar">
+      <element id="module-output" name="DopDiplom" />
+      <element id="module-output" name="Server" />
+      <element id="module-output" name="Client" />
+    </root>
+  </artifact>
+</component>
