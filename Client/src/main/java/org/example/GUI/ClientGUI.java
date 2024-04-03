@@ -19,13 +19,15 @@ public class ClientGUI extends JFrame {
     private BufferedWriter textBufferedWriter;
     private String name;
 
-    private JTextArea chatArea;
+    public JTextArea chatArea;
     private JTextField messageField;
 
     private boolean isMicrophoneMuted;
     TargetDataLine line;
     private JButton muteButton;
     private static InetAddress inetAddress;
+
+    private SourceDataLine audioOutputLine;
 
     public ClientGUI(String name, Socket audioSocket, Socket textSocket) {
         this.name = name;
@@ -46,8 +48,8 @@ public class ClientGUI extends JFrame {
             Thread messagesThread = new Thread(this::listenForMessages);
             messagesThread.start();
 
-            // Начинаем слушать входящие аудио
-            Thread listeningThread = new Thread(this::startAudioListening);
+             // Начинаем слушать входящие аудио
+             Thread listeningThread = new Thread(this::startAudioListening);
             listeningThread.start();
 
             // Начинаем отправлять аудио
@@ -88,7 +90,7 @@ public class ClientGUI extends JFrame {
      * Метод отправки сообщения
      * @param message
      */
-    private void sendMessage(String message) {
+    public void sendMessage(String message) {
         try {
             textBufferedWriter.write(message + "\n");
             textBufferedWriter.flush();
@@ -96,6 +98,7 @@ public class ClientGUI extends JFrame {
             e.printStackTrace();
         }
     }
+
 
     /**
      * Метод отображения сообщений
@@ -134,32 +137,30 @@ public class ClientGUI extends JFrame {
     /**
      * Метод воспроизведения аудио
      */
-    private void startAudioListening() {
+    public void startAudioListening() {
         try {
             byte[] buffer = new byte[1024];
             AudioFormat format = new AudioFormat(44100, 16, 2, true, true);
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-            SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+            audioOutputLine = (SourceDataLine) AudioSystem.getLine(info);
+            audioOutputLine.open(format);
+            audioOutputLine.start();
+
             BufferedInputStream in = new BufferedInputStream(audioSocket.getInputStream());
-            line.open(format);
-            line.start();
-            int count;
-            while ((count = in.read(buffer)) != -1) {
-                System.out.println(this);
-                line.write(buffer, 0, count);
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                audioOutputLine.write(buffer, 0, bytesRead);
             }
-            line.drain();
-            line.close();
         } catch (LineUnavailableException |IOException e) {
-            line.drain();
-            line.close();
+            audioOutputLine.drain();
+            audioOutputLine.close();
         }
     }
 
     /**
      * Метод записи аудио
      */
-    private void sendAudio() {
+    public void sendAudio() {
         try {
             byte[] buffer = new byte[1024];
             AudioFormat format = new AudioFormat(44100, 16, 2, true, true);
@@ -180,7 +181,6 @@ public class ClientGUI extends JFrame {
         } catch (LineUnavailableException | IOException e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -207,5 +207,9 @@ public class ClientGUI extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getChatAreaText() {
+        return chatArea.getText();
     }
 }

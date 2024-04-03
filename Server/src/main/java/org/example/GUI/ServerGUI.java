@@ -16,8 +16,8 @@ import java.util.ArrayList;
  */
 public class ServerGUI extends JFrame {
 
-    private ServerSocket audioServerSocket;
-    private ServerSocket textServerSocket;
+    public ServerSocket audioServerSocket;
+    public ServerSocket textServerSocket;
     private ArrayList<ClientManager> clients = new ArrayList<>();
     private ArrayList<AudioClientHandler> audioClients = new ArrayList<>();
     private JTextArea logArea;
@@ -62,7 +62,7 @@ public class ServerGUI extends JFrame {
     /*
         Принимаем подключение клиентов для аудио
      */
-    private void acceptAudioClients() {
+    public void acceptAudioClients() {
         try {
             while (true) {
                 Socket audioSocket = audioServerSocket.accept();
@@ -84,7 +84,7 @@ public class ServerGUI extends JFrame {
     /*
         Принимаем подключение клиентов для текста
      */
-    private void acceptTextClients() {
+    public void acceptTextClients() {
         try {
             while (true) {
                 Socket textSocket = textServerSocket.accept();
